@@ -34,6 +34,7 @@ animated.forEach(function (el) {
 
 const form = document.getElementById('signup-form');
 const emailInput = document.getElementById('email');
+const submitBtn = form.querySelector('button[type="submit"]');
 
 function showMessage(text) {
   const old = document.getElementById('signup-msg');
@@ -48,6 +49,10 @@ form.addEventListener('submit', async function (e) {
   e.preventDefault();
   const email = emailInput.value.trim();
 
+  submitBtn.disabled = true;
+  submitBtn.classList.add('loading');
+  submitBtn.textContent = 'Sending…';
+
   try {
     const res = await fetch('/api/subscribe', {
       method: 'POST',
@@ -58,6 +63,8 @@ form.addEventListener('submit', async function (e) {
 
     if (!res.ok) {
       showMessage(data.error || 'Something went wrong. Try again.');
+      emailInput.value = '';
+      emailInput.focus();
       return;
     }
 
@@ -66,9 +73,16 @@ form.addEventListener('submit', async function (e) {
     } else {
       showMessage('Almost there! Check your inbox and confirm your subscription.');
     }
-    form.reset();
+    emailInput.value = '';
+    emailInput.focus();
   } catch (err) {
     showMessage('Could not reach the server. Please try again.');
+    emailInput.value = '';
+    emailInput.focus();
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('loading');
+    submitBtn.textContent = 'Start the Challenge';
   }
 });
 
