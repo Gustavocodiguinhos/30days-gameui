@@ -13,9 +13,7 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASSWORD
+      - key: BREVO_API_KEY
         sync: false
       - key: EMAIL_FROM
         sync: false

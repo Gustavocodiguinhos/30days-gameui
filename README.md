@@ -6,7 +6,7 @@ A daily game UI challenge sent to your inbox at 8:00 AM for 30 days. 24 challeng
 
 - **Backend**: Node.js + Express
 - **Database**: Supabase (Postgres)
-- **Emails**: Resend
+- **Emails**: Brevo API (HTTPS — works on Render free tier, unlike SMTP ports)
 - **Frontend**: static HTML/CSS/JS in `public/`
 - **Scheduling**: GitHub Actions cron → `POST /api/cron`
 
@@ -20,7 +20,7 @@ npm run dev
 
 ## Environment variables
 
-See `.env.example`. Required: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `CRON_SECRET`. Optional: `EMAIL_FROM`, `PUBLIC_URL`, `PORT`.
+See `.env.example`. Required: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BREVO_API_KEY`, `CRON_SECRET`. Optional: `EMAIL_FROM`, `PUBLIC_URL`, `PORT`.
 
 ## Deployment
 

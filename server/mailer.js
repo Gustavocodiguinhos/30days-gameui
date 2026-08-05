@@ -1,26 +1,34 @@
-import nodemailer from 'nodemailer';
-import dns from 'node:dns';
 import { config } from './config.js';
 
-dns.setDefaultResultOrder('ipv4first');
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-const transport = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: config.smtpUser,
-    pass: config.smtpPassword
-  },
-  connectionTimeout: 30000,
-  socketTimeout: 30000
-});
+function parseFrom(value) {
+  const match = /^(.*)\s*<([^>]+)>$/.exec(value);
+  if (match) return { name: match[1].trim(), email: match[2].trim() };
+  return { email: value.trim() };
+}
 
 export async function sendEmail({ to, subject, html }) {
-  return transport.sendMail({
-    from: config.emailFrom,
-    to,
-    subject,
-    html
+  const sender = parseFrom(config.emailFrom);
+
+  const response = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': config.brevoApiKey
+    },
+    body: JSON.stringify({
+      sender,
+      to: [{ email: to }],
+      subject,
+      htmlContent: html
+    })
   });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Brevo API error (${response.status}): ${body}`);
+  }
+
+  return response.json();
 }
