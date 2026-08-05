@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — 30Days Game UI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+      background: #0a0a0a;
+      color: #f5f5f5;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+    .login { display: flex; gap: 0.5rem; max-width: 420px; margin-bottom: 2rem; }
+    .login input {
+      flex: 1; padding: 0.7rem 0.9rem; border: 1px solid #262626; border-radius: 8px;
+      background: #0d0d0d; color: #f5f5f5; font-size: 1rem;
+    }
+    button {
+      border: 1px solid #262626; background: #fff; color: #0a0a0a; font-weight: 600;
+      padding: 0.6rem 1.1rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+    }
+    button:hover { background: #e6e6e6; }
+    button.secondary { background: #161616; color: #f5f5f5; }
+    button.danger { background: none; color: #ff6b6b; border-color: #ff6b6b; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .summary { color: #8a8a8a; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid #1f1f1f; vertical-align: top; }
+    th { color: #8a8a8a; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+    .badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-recreate { background: rgba(123, 92, 255, 0.2); color: #b7a6ff; }
+    .badge-scratch { background: rgba(255, 92, 179, 0.2); color: #ff9fd6; }
+    .game { color: #8a8a8a; }
+    .error { color: #ff6b6b; margin-top: 1rem; }
+    .ok { color: #5cd68a; margin-top: 1rem; }
+
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem; z-index: 10;
+    }
+    .modal.hidden { display: none; }
+    .modal-card {
+      background: #111; border: 1px solid #262626; border-radius: 12px;
+      width: 100%; max-width: 560px; padding: 1.75rem; max-height: 90vh; overflow: auto;
+    }
+    .modal-card h2 { font-size: 1.2rem; margin-bottom: 1.25rem; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; color: #8a8a8a; font-size: 0.8rem; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #262626; border-radius: 8px;
+      background: #0d0d0d; color: #f5f5f5; font-size: 0.95rem; font-family: inherit;
+    }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .field .hint { font-size: 0.75rem; color: #555; margin-top: 0.3rem; }
+    .row { display: flex; gap: 0.75rem; }
+    .row .field { flex: 1; }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .thumb { max-width: 120px; max-height: 60px; border-radius: 6px; border: 1px solid #262626; display: block; margin-bottom: 0.4rem; }
+    .actions { display: flex; gap: 0.5rem; }
+    .actions button { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>30Days Game UI — Admin</h1>
+  <div class="login">
+    <input type="password" id="secret" placeholder="CRON_SECRET" autocomplete="off">
+    <button id="load" type="button">Load</button>
+  </div>
+  <div id="app" class="hidden">
+    <div class="toolbar">
+      <span class="summary" id="summary"></span>
+      <button id="btn-add" type="button">+ Add Challenge</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Day</th><th>Challenge</th><th>Game / Idea</th><th>Type</th><th>Ref image</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div id="msg"></div>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-card">
+      <h2 id="modal-title">Edit Challenge</h2>
+      <div class="row">
+        <div class="field">
+          <label>Day</label>
+          <input type="number" id="f-day" min="1" max="60">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select id="f-type">
+            <option value="recreate">Recreate</option>
+            <option value="scratch">From scratch</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Challenge title</label>
+        <input type="text" id="f-title">
+      </div>
+      <div class="field">
+        <label>Game / Idea</label>
+        <input type="text" id="f-game">
+      </div>
+      <div class="field">
+        <label>Reference image</label>
+        <input type="text" id="f-reference" placeholder="/references/day-01.jpg">
+        <input type="file" id="f-upload" accept="image/*" style="margin-top:0.5rem">
+        <div class="hint">Upload a new image or type the path manually.</div>
+      </div>
+      <div class="field">
+        <label>Design tips (one per line)</label>
+        <textarea id="f-tips"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-save" type="button">Save</button>
+        <button id="btn-cancel" class="secondary" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let secret = localStorage.getItem('admin_secret') || '';
+    let challenges = [];
+    let editingDay = null;
+
+    const $ = (id) => document.getElementById(id);
+    const app = $('app');
+    const rowsEl = $('rows');
+    const msgEl = $('msg');
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+
+    function message(text, kind) {
+      msgEl.className = kind || '';
+      msgEl.textContent = text || '';
+    }
+
+    async function api(url, opts) {
+      const headers = Object.assign({ 'x-cron-secret': secret }, opts && opts.headers);
+      const res = await fetch(url, Object.assign({}, opts, { headers }));
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    async function load() {
+      secret = $('secret').value.trim();
+      if (!secret) return;
+      localStorage.setItem('admin_secret', secret);
+      try {
+        const data = await api('/api/challenges');
+        challenges = data.challenges;
+        render();
+        app.classList.remove('hidden');
+      } catch (err) {
+        message(err.message, 'error');
+      }
+    }
+
+    function render() {
+      const recreate = challenges.filter((c) => c.type === 'recreate').length;
+      const scratch = challenges.length - recreate;
+      $('summary').textContent = challenges.length + ' challenges (' + recreate + ' recreate \u00b7 ' + scratch + ' from scratch)';
+
+      const bust = '?v=' + Date.now();
+      let rows = '';
+      for (const c of challenges) {
+        const badge = c.type === 'recreate'
+          ? '<span class="badge badge-recreate">Recreate</span>'
+          : '<span class="badge badge-scratch">From scratch</span>';
+        const img = c.reference
+          ? '<img class="thumb" src="' + esc(c.reference) + bust + '" alt="" onerror="this.style.display=\'none\'">'
+          : '';
+        rows += '<tr>' +
+          '<td><strong>' + c.day + '</strong></td>' +
+          '<td>' + esc(c.title) + '</td>' +
+          '<td class="game">' + esc(c.game) + '</td>' +
+          '<td>' + badge + '</td>' +
+          '<td>' + img + esc(c.reference || '') + '</td>' +
+          '<td class="actions">' +
+            '<button data-edit="' + c.day + '" type="button">Edit</button>' +
+            '<button class="danger" data-del="' + c.day + '" type="button">Delete</button>' +
+          '</td></tr>';
+      }
+      rowsEl.innerHTML = rows;
+    }
+
+    function openModal(challenge) {
+      editingDay = challenge ? challenge.day : null;
+      $('modal-title').textContent = challenge ? 'Edit Challenge' : 'Add Challenge';
+      $('f-day').value = challenge ? challenge.day : (challenges.length + 1);
+      $('f-type').value = challenge ? challenge.type : 'recreate';
+      $('f-title').value = challenge ? challenge.title : '';
+      $('f-game').value = challenge ? challenge.game : '';
+      $('f-reference').value = challenge ? (challenge.reference || '') : '';
+      $('f-upload').value = '';
+      $('f-tips').value = challenge ? (challenge.tips || []).join('\n') : '';
+      $('modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      $('modal').classList.add('hidden');
+    }
+
+    async function save() {
+      const body = {
+        day: parseInt($('f-day').value, 10),
+        type: $('f-type').value,
+        title: $('f-title').value.trim(),
+        game: $('f-game').value.trim(),
+        reference: $('f-reference').value.trim(),
+        tips: $('f-tips').value
+      };
+
+      const file = $('f-upload').files[0];
+      const dayForFile = body.day;
+
+      try {
+        if (editingDay) {
+          await api('/api/challenges/' + editingDay, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+        } else {
+          await api('/api/challenges', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+        }
+
+        if (file) {
+          const form = new FormData();
+          form.append('day', dayForFile);
+          form.append('image', file);
+          await api('/api/references', { method: 'POST', body: form });
+        }
+
+        closeModal();
+        await load();
+        message('Saved!', 'ok');
+      } catch (err) {
+        message(err.message, 'error');
+      }
+    }
+
+    rowsEl.addEventListener('click', async function (e) {
+      const edit = e.target.getAttribute('data-edit');
+      const del = e.target.getAttribute('data-del');
+      if (edit) {
+        const c = challenges.find((x) => x.day === parseInt(edit, 10));
+        if (c) openModal(c);
+      }
+      if (del) {
+        if (!confirm('Delete challenge day ' + del + '?')) return;
+        try {
+          await api('/api/challenges/' + del, { method: 'DELETE' });
+          await load();
+          message('Deleted.', 'ok');
+        } catch (err) {
+          message(err.message, 'error');
+        }
+      }
+    });
+
+    $('load').addEventListener('click', load);
+    $('secret').addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });
+    $('btn-add').addEventListener('click', function () { openModal(null); });
+    $('btn-save').addEventListener('click', save);
+    $('btn-cancel').addEventListener('click', closeModal);
+
+    if (secret) {
+      $('secret').value = secret;
+      load();
+    }
+  </script>
+</body>
+</html>

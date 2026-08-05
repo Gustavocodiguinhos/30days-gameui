@@ -1,0 +1,17 @@
+name: daily-challenges
+
+on:
+  schedule:
+    # 08:00 in Sao Paulo (UTC-3) = 11:00 UTC
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily challenge cron
+        run: |
+          curl -s -f -X POST "${{ secrets.PUBLIC_URL }}/api/cron" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
