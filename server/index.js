@@ -4,8 +4,8 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import multer from 'multer';
-import { Resend } from 'resend';
 import { config } from './config.js';
+import { sendEmail } from './mailer.js';
 import {
   findSubscriberByEmail,
   upsertSubscriber,
@@ -29,7 +29,6 @@ const publicDir = path.join(__dirname, '..', 'public');
 const referencesDir = path.join(publicDir, 'references');
 
 const app = express();
-const resend = new Resend(config.resendApiKey);
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -101,15 +100,14 @@ app.post('/api/subscribe', async (req, res) => {
     }
 
     const confirmUrl = `${config.publicUrl}/api/confirm?token=${subscriber.confirm_token}`;
-    const { error } = await resend.emails.send({
-      from: config.emailFrom,
-      to: [email],
-      subject: 'Confirm your subscription — 30Days Game UI',
-      html: confirmEmailHtml({ email, confirmUrl, brand: '30Days Game UI' })
-    });
-
-    if (error) {
-      console.error('Failed to send confirmation email:', error);
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Confirm your subscription — 30Days Game UI',
+        html: confirmEmailHtml({ email, confirmUrl, brand: '30Days Game UI' })
+      });
+    } catch (err) {
+      console.error('Failed to send confirmation email:', err);
       return res.status(500).json(emailError('Failed to send confirmation email.'));
     }
 
@@ -191,15 +189,14 @@ async function sendDailyChallenges() {
       publicUrl: config.publicUrl
     });
 
-    const { error } = await resend.emails.send({
-      from: config.emailFrom,
-      to: [sub.email],
-      subject: `Day ${day}: ${challenge.title} — 30Days Game UI`,
-      html
-    });
-
-    if (error) {
-      console.error(`Failed to send day ${day} to ${sub.email}:`, error);
+    try {
+      await sendEmail({
+        to: sub.email,
+        subject: `Day ${day}: ${challenge.title} — 30Days Game UI`,
+        html
+      });
+    } catch (err) {
+      console.error(`Failed to send day ${day} to ${sub.email}:`, err);
       results.failed.push(sub.email);
       continue;
     }
