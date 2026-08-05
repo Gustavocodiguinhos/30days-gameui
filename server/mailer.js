@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 import { config } from './config.js';
+
+dns.setDefaultResultOrder('ipv4first');
 
 const transport = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -8,7 +11,9 @@ const transport = nodemailer.createTransport({
   auth: {
     user: config.gmailUser,
     pass: config.gmailAppPassword
-  }
+  },
+  connectionTimeout: 30000,
+  socketTimeout: 30000
 });
 
 export async function sendEmail({ to, subject, html }) {
