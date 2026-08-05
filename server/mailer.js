@@ -5,12 +5,12 @@ import { config } from './config.js';
 dns.setDefaultResultOrder('ipv4first');
 
 const transport = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
   auth: {
-    user: config.gmailUser,
-    pass: config.gmailAppPassword
+    user: config.smtpUser,
+    pass: config.smtpPassword
   },
   connectionTimeout: 30000,
   socketTimeout: 30000

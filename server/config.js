@@ -12,9 +12,9 @@ export const config = {
   port: process.env.PORT || 3000,
   supabaseUrl: required('SUPABASE_URL'),
   supabaseServiceRoleKey: required('SUPABASE_SERVICE_ROLE_KEY'),
-  gmailUser: required('GMAIL_USER'),
-  gmailAppPassword: required('GMAIL_APP_PASSWORD'),
-  emailFrom: process.env.EMAIL_FROM || `30Days Game UI <${process.env.GMAIL_USER}>`,
+  smtpUser: required('SMTP_USER'),
+  smtpPassword: required('SMTP_PASSWORD'),
+  emailFrom: process.env.EMAIL_FROM || `30Days Game UI <${process.env.SMTP_USER}>`,
   publicUrl: process.env.PUBLIC_URL || 'http://localhost:3000',
   cronSecret: required('CRON_SECRET')
 };
