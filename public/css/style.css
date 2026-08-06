@@ -255,7 +255,8 @@ button.loading::before {
 }
 
 #signup-msg {
-  margin-top: 1.5rem;
+  margin: 1.5rem auto 0;
+  max-width: 560px;
   font-size: 0.95rem;
   color: var(--text);
   animation: fadeIn 0.4s var(--ease);

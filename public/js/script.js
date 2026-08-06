@@ -50,7 +50,7 @@ function showMessage(text, { autoHide = false } = {}) {
   const msg = document.createElement('p');
   msg.id = 'signup-msg';
   msg.textContent = text;
-  form.appendChild(msg);
+  form.insertAdjacentElement('afterend', msg);
   if (autoHide) {
     setTimeout(() => {
       if (msg.parentNode) msg.remove();
