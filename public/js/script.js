@@ -28,9 +28,17 @@ const observer = new IntersectionObserver(function (entries) {
   });
 }, { threshold: 0.15 });
 
-animated.forEach(function (el) {
+animated.forEach(function (el, i) {
+  if (el.parentElement.classList.contains('steps')) {
+    el.style.transitionDelay = i * 120 + 'ms';
+  }
   observer.observe(el);
 });
+
+const header = document.querySelector('header');
+window.addEventListener('scroll', function () {
+  header.classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
 
 const form = document.getElementById('signup-form');
 const emailInput = document.getElementById('email');
