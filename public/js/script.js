@@ -36,13 +36,18 @@ const form = document.getElementById('signup-form');
 const emailInput = document.getElementById('email');
 const submitBtn = form.querySelector('button[type="submit"]');
 
-function showMessage(text) {
+function showMessage(text, { autoHide = false } = {}) {
   const old = document.getElementById('signup-msg');
   if (old) old.remove();
   const msg = document.createElement('p');
   msg.id = 'signup-msg';
   msg.textContent = text;
   form.appendChild(msg);
+  if (autoHide) {
+    setTimeout(() => {
+      if (msg.parentNode) msg.remove();
+    }, 4000);
+  }
 }
 
 form.addEventListener('submit', async function (e) {
@@ -69,9 +74,9 @@ form.addEventListener('submit', async function (e) {
     }
 
     if (data.message === 'already subscribed') {
-      showMessage('You are already subscribed. The next challenge is on the way!');
+      showMessage('You are already subscribed. The next challenge is on the way!', { autoHide: true });
     } else {
-      showMessage('Almost there! Check your inbox and confirm your subscription.');
+      showMessage('Almost there! Check your inbox and confirm your subscription.', { autoHide: true });
     }
     emailInput.value = '';
     emailInput.focus();
