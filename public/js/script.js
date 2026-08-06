@@ -41,10 +41,11 @@ window.addEventListener('scroll', function () {
 }, { passive: true });
 
 const form = document.getElementById('signup-form');
-const emailInput = document.getElementById('email');
-const submitBtn = form.querySelector('button[type="submit"]');
+const emailInput = form ? document.getElementById('email') : null;
+const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
 
 function showMessage(text, { autoHide = false } = {}) {
+  if (!form) return;
   const old = document.getElementById('signup-msg');
   if (old) old.remove();
   const msg = document.createElement('p');

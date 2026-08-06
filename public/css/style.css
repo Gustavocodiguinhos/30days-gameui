@@ -370,6 +370,51 @@ footer a:hover {
   transform: translateY(0);
 }
 
+.legal {
+  max-width: 760px;
+  margin: 0 auto;
+  border: none;
+  text-align: left;
+}
+
+.legal h2 {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.legal-updated {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 3rem;
+  font-size: 0.95rem;
+}
+
+.legal-block {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.3s;
+}
+
+.legal-block h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+
+.legal-block p {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.legal-block a {
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
